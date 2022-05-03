@@ -272,6 +272,7 @@ MODEL mod_import(char* filename) {
     model.vecs = mod_import_vects(filename);
     model.edgs = mod_import_edges(filename);
     model.tris = mod_import_tris(filename);
+    model.tvecs = (VEC2D*) malloc(((int)model.vecs[0].i +1)*sizeof(VEC2D));
 
     return model;
 }

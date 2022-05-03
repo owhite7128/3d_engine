@@ -33,11 +33,10 @@ typedef struct edge {
 
 typedef struct model {
     VEC3D* vecs;
+    VEC2D* tvecs;
     EDGE* edgs;
     TRIANG* tris;
     int id;
 } MODEL;
-
-void mod_free (MODEL model);
 
 #endif
