@@ -14,29 +14,10 @@ typedef struct vec2d {
     int k;
 } VEC2D;
 
-typedef struct ang3d {
-    float x;
-    float y;
-    float z;
-} ANG3D;
+VEC3D vec_cross (VEC3D vecA, VEC3D vecB);
 
-typedef struct triang {
-    int s;
-    int m;
-    int e;
-} TRIANG;
+float vec3_dot (VEC3D vecA, VEC3D vecB);
 
-typedef struct edge {
-    int s;
-    int e;
-} EDGE;
-
-typedef struct model {
-    VEC3D* vecs;
-    VEC2D* tvecs;
-    EDGE* edgs;
-    TRIANG* tris;
-    int id;
-} MODEL;
+float vec2_dot (VEC2D vecA, VEC2D vecB);
 
 #endif

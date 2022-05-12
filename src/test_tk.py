@@ -61,5 +61,5 @@ while True:
     print(form_pts)
     draw(form_pts, form_edgs)
     cvs.update()
-    time.sleep(0.1)
-    y = y + math.pi / 128
+    time.sleep(0.5)
+    y = math.pi / 3

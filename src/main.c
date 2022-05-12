@@ -1,6 +1,7 @@
 #include "../include/import_file.h"
 #include "../include/transform.h"
 #include "../include/vect.h"
+#include "../include/model.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>

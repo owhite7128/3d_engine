@@ -2,6 +2,7 @@
 #define IMPORT_FILE_H
 
 #include "vect.h"
+#include "model.h"
 
 int size_of_file (unsigned char* raw_file);
 

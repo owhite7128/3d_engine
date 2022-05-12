@@ -1,5 +1,6 @@
 #include "import_file.h"
 #include "vect.h"
+#include "model.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
