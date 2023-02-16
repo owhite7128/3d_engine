@@ -3,17 +3,19 @@
 
 #include "vect.h"
 
-typedef struct ang3d {
-    float x;
-    float y;
-    float z;
-} ANG3D;
-
 typedef struct triang {
     int s;
     int m;
     int e;
 } TRIANG;
+
+typedef struct face {
+    int one;
+    int two;
+    int three;
+    int four;
+    int draw;
+} FACE;
 
 typedef struct edge {
     int s;
@@ -25,7 +27,10 @@ typedef struct model {
     VEC2D* tvecs;
     EDGE* edgs;
     TRIANG* tris;
+    FACE* faces;
     int id;
 } MODEL;
+
+void destroy_model (MODEL model);
 
 #endif

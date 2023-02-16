@@ -1,4 +1,20 @@
 #include "vect.h"
+#include <math.h>
+
+void norm_ang_quat(ANG3D* rot) {
+    float length = sqrt(pow(rot->x,2)+pow(rot->y,2)+pow(rot->z,2));
+
+    rot->x /= length;
+    rot->y /= length;
+    rot->z /= length;
+
+    rot->x *= sin(rot->w / 2);
+    rot->y *= sin(rot->w / 2);
+    rot->z *= sin(rot->w / 2);
+    
+    rot->w = cos(rot->w / 2);
+    return;
+}
 
 VEC3D vec_cross (VEC3D vecA, VEC3D vecB) {
     VEC3D crossProd;

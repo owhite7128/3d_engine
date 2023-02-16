@@ -1,6 +1,13 @@
 #ifndef VECT_H
 #define VECT_H
 
+typedef struct ang3d {
+    float x;
+    float y;
+    float z;
+    float w;
+} ANG3D;
+
 typedef struct vec3d {
     float i;
     float j;
@@ -13,6 +20,8 @@ typedef struct vec2d {
     float j;
     int k;
 } VEC2D;
+
+void norm_ang_quat(ANG3D* rot);
 
 VEC3D vec_cross (VEC3D vecA, VEC3D vecB);
 
