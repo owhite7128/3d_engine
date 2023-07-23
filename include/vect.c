@@ -26,6 +26,33 @@ VEC3D vec_cross (VEC3D vecA, VEC3D vecB) {
     return crossProd;
 }
 
+float vec3_len (VEC3D vecA, VEC3D vecB)
+{
+    return sqrt (pow(vecA.i - vecB.i, 2) + pow(vecA.j - vecB.j, 2) + pow(vecA.k - vecB.k, 2));
+}
+
+VEC3D vec3_norm (VEC3D vec, float len)
+{
+    VEC3D ret;
+    ret.i = vec.i / len;
+    ret.j = vec.j / len;
+    ret.k = vec.k / len;
+    ret.w = vec.w;
+
+    return ret;
+}
+
+VEC3D vec3_sub (VEC3D v1, VEC3D v2)
+{
+    VEC3D ret;
+    ret.i = v1.i - v2.i;
+    ret.j = v1.j - v2.j;
+    ret.k = v1.k - v2.k;
+    ret.w = v1.w;
+
+    return ret;
+}
+
 float vec3_dot (VEC3D vecA, VEC3D vecB) {
     float dot = vecA.i * vecB.i + vecA.j * vecB.j + vecA.k * vecB.k;
 

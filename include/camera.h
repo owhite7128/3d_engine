@@ -11,10 +11,9 @@ typedef struct camera {
     int active;
 } CAMERA;
 
-void update_camera_pos (CAMERA *camera, VEC3D new_pos);
-void update_camera_ang (CAMERA *camera, ANG3D new_ang);
+void update_camera_pos (CAMERA* camera, VEC3D new_pos);
+void update_camera_ang (CAMERA* camera, ANG3D new_ang);
 
-CAMERA* create_camera (ANG3D ang, VEC3D pos, VEC3D ddist);
-void destory_camera (CAMERA *camera);
+CAMERA create_camera (ANG3D ang, VEC3D pos, VEC3D ddist);
 
 #endif
