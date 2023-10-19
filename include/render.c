@@ -155,21 +155,95 @@ int pt_in_tri (VEC2D pt, VEC2D v1, VEC2D v2, VEC2D v3)
     return !(has_neg && has_pos);
 }
 
-void render_tri (uint32_t *cbuff, MODEL* mod, TRIANG tri) {
+float calcZ(VEC3D p1, VEC3D p2, VEC3D p3, float x, float y) {
+    float det = (p2.j - p3.j) * (p1.i - p3.i) + (p3.i - p2.i) * (p1.j - p3.j);
+
+    float l1 = ((p2.j - p3.j) * (x - p3.i) + (p3.i - p2.i) * (y - p3.j)) / det;
+    float l2 = ((p3.j - p1.j) * (x - p3.i) + (p1.i - p3.i) * (y - p3.j)) / det;
+    float l3 = 1.0f - l1 - l2;
+
+    return l1 * p1.k + l2 * p2.k + l3 * p3.k;
+}
+
+
+/*
+Interpolate (i0, d0, i1, d1) {
+    values = []
+    a = (d1 - d0) / (i1 - i0)
+    d = d0
+    for i = i0 to i1 {
+        values.append(d)
+        d = d + a
+    }
+    return values
+}
+*/
+int* interpolate (int i0, int d0, int i1, int d1)
+{
+    int* ret = (int*) malloc((i1 - i0 + 1)*sizeof(int));
+    int a = (d1 - d0) / (i1 - i0);
+    int d = d0;
+
+    ret[0] = i1-i0;
+    for (int i=1; i<(i1-i0 + 1); i++)
+    {
+        ret[i] = d;
+        d += a;
+    }
+    return ret;
+}
+
+int* combine (int* l1, int* l2)
+{
+    int* ret = (int*) malloc ((l2[0] + l1[0])*sizeof(int));
+    ret[0] = l2[0] + l1[0] - 1;
+
+    // x: [xlen, x1, x2, x3, x4]
+    // y: [ylen, y1, y2, y3, y4]
+    // [xlen + ylen -1, x1, x2, x3, y1, y2, y3, y4]
+
+    for (int i=1; i < l1[0]; i++)
+    {
+        ret[i] = l1[i];
+    }
+    for (int i=l1[0]; i<(l2[0] + l1[0]); i++)
+    {
+        ret[i] = l2[i-l1[0]];
+    }
+    return ret;
+}
+
+void swap_vec2d (VEC2D *a, VEC2D *b)
+{
+    VEC2D temp;
+    temp.i = a->i;
+    temp.j = a->j;
+    temp.k = a->k;
+
+    a->i = b->i;
+    a->j = b->j;
+    a->k = b->k;
+
+    b->i = temp.i;
+    b->j = temp.j;
+    b->k = temp.k;
+}
+
+void render_tri (uint32_t *cbuff, float *zbuff, MODEL* mod, TRIANG tri) {
     VEC2D v1 = mod->tvecs[tri.s];
     VEC2D v2 = mod->tvecs[tri.m];
     VEC2D v3 = mod->tvecs[tri.e];
+
+    int half_height = SCREEN_HEIGHT / 2;
+    int half_width = SCREEN_WIDTH / 2;
 
     int min_x = 100000000;
     int min_y = 100000000;
     int max_x = 0;
     int max_y = 0;
 
-    int half_height = SCREEN_HEIGHT / 2;
-    int half_width = SCREEN_WIDTH / 2;
 
-
-    if (v1.i + half_width> max_x)
+    if (v1.i + half_width > max_x)
     {
         max_x = v1.i+ half_width;
     }
@@ -220,64 +294,156 @@ void render_tri (uint32_t *cbuff, MODEL* mod, TRIANG tri) {
         min_y = v3.j + half_height;
     }
 
+    int p1 = tri.s;
+    int p2 = tri.m;
+    int p3 = tri.e;
+    int temp;
 
-    int start_idx = min_y*SCREEN_WIDTH + min_x;
-    int end_idx = max_y*SCREEN_WIDTH + max_x;
+    VEC3D A = {mod->rot_vecs[p2].i - mod->rot_vecs[p1].i, mod->rot_vecs[p2].j - mod->rot_vecs[p1].j, mod->rot_vecs[p2].k - mod->rot_vecs[p1].k, 1};
+    VEC3D B = {mod->rot_vecs[p3].i - mod->rot_vecs[p1].i, mod->rot_vecs[p3].j - mod->rot_vecs[p1].j, mod->rot_vecs[p3].k - mod->rot_vecs[p1].k, 1};
+    VEC3D C = {mod->rot_vecs[p2].i - 0 + mod->pos.i, mod->rot_vecs[p2].j - 0 + mod->pos.j, mod->rot_vecs[p2].k - 0 + mod->pos.k, 1};
 
-    int start_line = min_y*SCREEN_WIDTH;
-    int end_line = max_y*SCREEN_WIDTH;
+    VEC3D CROSS = vec_cross(B, A);
+    VEC3D zero_vec = {0, 0, 0 , 1};
+    VEC3D NORM = vec3_norm(CROSS, vec3_len(zero_vec, CROSS));
+    
 
+    if (vec3_dot(NORM, C) < 0)
+    {
+        NORM = vec3_sub(zero_vec, NORM);
+    }
 
-    for (int i=min_y; i<min_x; i++)
+    NORM.w = NORM.i*mod->rot_vecs[p1].i + NORM.j*mod->rot_vecs[p1].j + NORM.k*mod->rot_vecs[p1].k;
+
+    // float avg_z = (mod->rot_vecs[tri.s].k + mod->rot_vecs[tri.m].k + mod->rot_vecs[tri.e].k) / 3;
+
+    for (int i=min_y; i<max_y; i++)
     {
         for (int j=min_x; j<max_x; j++)
         {
             VEC2D pt_vec = {j-half_width, i-half_height, 1};
             if (pt_in_tri(pt_vec, v1, v2, v3))
             {
-                
-                cbuff[i*SCREEN_WIDTH + j] = tri.color;
+                //float zval = calcZ(mod->vecs[p1], mod->vecs[p2], mod->vecs[p3], pt_vec.i, pt_vec.j);
+                float tval = NORM.w/(NORM.i*(j-half_width) + NORM.j*(i-half_height) + NORM.k*(state.cam.drwpln.k));
+                float zval = (state.cam.drwpln.k)*tval;
+                if (zbuff[i*SCREEN_WIDTH+j] < zval)
+                {
+                    cbuff[i*SCREEN_WIDTH + j] = tri.color;
+                    zbuff[i*SCREEN_WIDTH + j] = zval;
+                }
             }
         }
 
     }
 
 
-    /*for (int i=start_idx; i<end_idx; i++)
-    {
-        int screen_x = i % SCREEN_WIDTH;
-        int screen_y = i / SCREEN_WIDTH;
-        int offset = (SCREEN_HEIGHT / 2)*SCREEN_WIDTH + SCREEN_WIDTH / 2;
-        VEC2D pt_vec = {screen_x, screen_y, 1};
-        if (pt_in_tri(pt_vec, v1, v2, v3))
-        {
-            cbuff[i + offset] = 0xFF00FF00;
+    /*
+    DrawFilledTriangle (P0, P1, P2, color) {
+    // Sort the points so that y0 <= y1 <= y2
+        if y1 < y0 { swap(P1, P0) }
+        if y2 < y0 { swap(P2, P0) }
+        if y2 < y1 { swap(P2, P1) }
+
+    // Compute the x coordinates of the triangle edges
+        x01 = Interpolate(y0, x0, y1, x1)
+        x12 = Interpolate(y1, x1, y2, x2)
+        x02 = Interpolate(y0, x0, y2, x2)
+
+    // Concatenate the short sides
+        remove_last(x01)
+        x012 = x01 + x12
+
+    // Determine which is left and which is right
+        m = floor(x012.length / 2)
+        if x02[m] < x012[m] {
+            x_left = x02
+            x_right = x012
+        } else {
+            x_left = x012
+            x_right = x02
         }
 
-    }*/
+    // Draw the horizontal segments
+        for y = y0 to y2 {
+            for x = x_left[y - y0] to x_right[y - y0] {
+                canvas.PutPixel(x, y, color)
+            }
+        }
+    }
+    */
+/*
+   if (mod->tvecs[p1].j > mod->tvecs[p2].j)
+   {
+        temp = p1;
+        p1 = p2;
+        p2 = p1;
+   }
+   if (mod->tvecs[p1].j > mod->tvecs[p3].j)
+   {
+        temp = p1;
+        p1 = p3;
+        p3 = p1;
+   }
+   if (mod->tvecs[p2].j > mod->tvecs[p3].j)
+   {
+        temp = p2;
+        p2 = p3;
+        p3 = p2;
+   }
+
+    int* x01 = interpolate(mod->tvecs[p1].j, mod->tvecs[p1].i, mod->tvecs[p2].j, mod->tvecs[p2].i);
+    int* x12 = interpolate(mod->tvecs[p2].j, mod->tvecs[p2].i, mod->tvecs[p3].j, mod->tvecs[p3].i);
+    int* x02 = interpolate(mod->tvecs[p1].j, mod->tvecs[p1].i, mod->tvecs[p3].j, mod->tvecs[p3].i);
+
+    int* x012 = combine(x01, x12);
+    
+    int* x_left;
+    int* x_right;
+
+    int m = x012[0] / 2;
+    if (x02[m] < x012[m])
+    {
+        x_left = x02;
+        x_right = x012;
+    } else {
+        x_left = x012;
+        x_right = x02;
+    }
+
+    for (int i = min_y; i < max_y; i++)
+    {
+        printf ("{%d, %d}\n", x_left[i - min_y] + half_width, x_right[i - min_y] + half_width);
+        for (int j = x_left[i - min_y]; j < x_right[i - min_y]; j++)
+        {
+            printf ("{%d, %d}\n", j, i);
+        }
+        for (int j = x_left[i - min_y]; j < x_right[i - min_y]; j++)
+        {
+            float zval = (NORM.w - NORM.i*(j - half_width) - NORM.j*(i - half_height))/NORM.k;
+            if (zbuff[i*SCREEN_WIDTH+j] < zval)
+            {
+                cbuff[i*SCREEN_WIDTH + j] = tri.color;
+                zbuff[i*SCREEN_WIDTH + j] = zval;
+            }
+        }
+    }
+    free (x01);
+    free (x02);
+    free (x12);
+    free (x012);*/
 }
 
 void draw_3d (uint32_t *cbuff, float *zbuff, MODEL *mod, CAMERA cam) {
-    /*for (int q=1; q<(int)mod->vecs[0].i+1; q++)
-    {
-        int adjust_x = (int)(mod->tvecs[q].i + (SCREEN_WIDTH / 2));
-        int adjust_y = (int)(mod->tvecs[q].j + (SCREEN_HEIGHT / 2));
-        int idx = (int)((adjust_y * SCREEN_WIDTH) + adjust_x);
-        if (idx < SCREEN_HEIGHT*SCREEN_WIDTH && idx >= 0 && adjust_y < SCREEN_HEIGHT && adjust_y >= 0 && adjust_x < SCREEN_WIDTH && adjust_x >= 0) {
-            if (mod->vecs[q].k < zbuff[idx]) {
-                zbuff[idx] = mod->vecs[q].k;
-                cbuff[idx] = 0xFF00FF00;
-            }
-        }
-    }*/
+    clock_t a = clock();
 
     for (int m=1; m<mod->tris[0].s + 1; m++)
     {
-        if (mod->tris[m].draw == 1)
-        {
-            render_tri (cbuff, mod, mod->tris[m]);
-        }
+        render_tri (cbuff, zbuff, mod, mod->tris[m]);
     }
+    clock_t b = clock();
+    double time_spent = (double)(b - a) / CLOCKS_PER_SEC;
+    printf ("\tTime for Drawing Tris: %lf\n", time_spent);
 }
 void clear_buffer (BUFFER_2D buff)
 {
@@ -373,22 +539,16 @@ void render(int render_mode) {
             // Calls the onRender FXN given by FXN Ptr
             state.rend(&state);
 
-            for (int i=0; i<SCREEN_WIDTH*SCREEN_HEIGHT; i++)
-            {
-                state.pixels[i] = 0x00000000;
-                state.depth_buff[i] = FMAX;
-            }
+            // Clears the Buffers
+            memset (state.pixels, 0, sizeof(state.pixels));
+            memset (state.depth_buff, -10000000.0, sizeof(state.depth_buff));
+
 
             MODEL_NODE* track = state.mod_list->head;
-            while (track != NULL) {
-                model_tfrm (track->curr, state.cam);
-                check_occlusion (track->curr, state.depth_buff);
-                track = track->next;
-            }
             track = state.mod_list->head;
             while (track != NULL)
             {
-                //model_tfrm (track->curr, state.cam);
+                model_tfrm (track->curr, state.cam);
                 draw_3d (state.pixels, state.depth_buff, track->curr, state.cam);
                 track = track->next;
             }

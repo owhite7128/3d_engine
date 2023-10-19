@@ -27,10 +27,10 @@ void rotate_mod(MODEL *init_model, ANG3D rot) {
         float temp_z = init_model->vecs[l].k - z_bar;
 
 
-        init_model->vecs[l].i = (temp_x*(1-2*pow(rot.y,2)-2*pow(rot.z,2))) + (temp_y*((2*rot.x*rot.y)-(2*rot.w*rot.z))) + (temp_z*((2*rot.x*rot.z)+(rot.w*rot.y))) + x_bar;
-        init_model->vecs[l].j = (temp_x*((2*rot.x*rot.y)+(2*rot.w*rot.z))) + (temp_y*(1-2*pow(rot.x,2)-2*pow(rot.z,2))) + (temp_z*((2*rot.y*rot.z)-(rot.w*rot.x))) + y_bar;
-        init_model->vecs[l].k = (temp_x*((2*rot.x*rot.z)-(rot.w*rot.y))) + (temp_y*((2*rot.y*rot.z)+(rot.w*rot.x))) + (temp_z*(1-2*pow(rot.x,2)-2*pow(rot.y,2))) + z_bar;
-        init_model->vecs[l].w = 1;
+        init_model->rot_vecs[l].i = (temp_x*(1-2*pow(rot.y,2)-2*pow(rot.z,2))) + (temp_y*((2*rot.x*rot.y)-(2*rot.w*rot.z))) + (temp_z*((2*rot.x*rot.z)+(rot.w*rot.y))) + x_bar;
+        init_model->rot_vecs[l].j = (temp_x*((2*rot.x*rot.y)+(2*rot.w*rot.z))) + (temp_y*(1-2*pow(rot.x,2)-2*pow(rot.z,2))) + (temp_z*((2*rot.y*rot.z)-(rot.w*rot.x))) + y_bar;
+        init_model->rot_vecs[l].k = (temp_x*((2*rot.x*rot.z)-(rot.w*rot.y))) + (temp_y*((2*rot.y*rot.z)+(rot.w*rot.x))) + (temp_z*(1-2*pow(rot.x,2)-2*pow(rot.y,2))) + z_bar;
+        init_model->rot_vecs[l].w = 1;
     }
     
 }

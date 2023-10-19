@@ -38,17 +38,31 @@ void move_model (MODEL* mod, VEC3D pos)
     mod->pos.k += pos.k;
 }
 
-void set_model (MODEL* mod, VEC3D pos) {
+void set_model_pos (MODEL* mod, VEC3D pos) {
     mod->pos.i = pos.i;
     mod->pos.j = pos.j;
     mod->pos.k = pos.k;
     mod->pos.w = pos.w;
 }
 
+void set_model_rot (MODEL* mod, ANG3D ang) {
+    mod->rot.x = ang.x;
+    mod->rot.y = ang.y;
+    mod->rot.z = ang.z;
+    mod->rot.w = ang.w;
+}
+
+void change_model_rot (MODEL* mod, ANG3D ang)
+{
+    mod->rot.x += ang.x;
+    mod->rot.y += ang.y;
+    mod->rot.z += ang.z;
+}
+
 void add_model (MODEL_LIST* mod_list, char* file_name, VEC3D in_pos, ANG3D in_rot, float in_scale) {
     MODEL* new_mod = import_model (file_name, MODEL_IMPORT_OBJ);
-    set_model (new_mod, in_pos);
-    rotate_mod (new_mod, in_rot);
+    set_model_pos (new_mod, in_pos);
+    set_model_rot (new_mod, in_rot);
     new_mod->scale = in_scale;
     MODEL_NODE* new_node = new_model_node (new_mod);
     if (mod_list->tail) {

@@ -13,23 +13,23 @@
 #define PI 3.14159265358765
 
 float t = 0.0;
-int y = -7;
+int y = -1;
 
 void on_init_rend (WINDOW_APP* app) {
-    /*VEC3D mod_vec = {0, 0, 0, 1};
-    ANG3D mod_ang = {PI/2, 0, 0, 0};
-    add_model (app->mod_list, "./sphere.obj", mod_vec, mod_ang, 1);*/
+    /*VEC3D mod_vec = {0, 0, -7, 1};
+    ANG3D mod_ang = {0, 0, 0, 1};
+    add_model (app->mod_list, "./spheretris.obj", mod_vec, mod_ang, 1);*/
 
     VEC3D mod_vec_2 = {0, 0, -7, 1};
-    ANG3D mod_ang_2 = {PI/2, 0, 0, 0};
+    ANG3D mod_ang_2 = {0, 0, 0, 1};
     add_model (app->mod_list, "./monkey.obj", mod_vec_2, mod_ang_2, 1);
 
     /*VEC3D mod_vec_3 = {-2, 0, -7, 1};
-    ANG3D mod_ang_3 = {PI/2, 0, 0, 0};
+    ANG3D mod_ang_3 = {0, 0, 0, 1};
     add_model (app->mod_list, "./monkey.obj", mod_vec_3, mod_ang_3, 1);
 
     VEC3D mod_vec_4 = {2, 0, -7, 1};
-    ANG3D mod_ang_4 = {PI/2, 0, 0, 0};
+    ANG3D mod_ang_4 = {0, 0, 0, 1};
     add_model (app->mod_list, "./monkey.obj", mod_vec_4, mod_ang_4, 1);*/
     
     return;
@@ -38,26 +38,29 @@ void on_init_rend (WINDOW_APP* app) {
 // ANG3D mod_rot = {0, PI/2, 0, 0.01};
 void call_rend (WINDOW_APP* app) {
     
-    // ANG3D mod_rot = {0, PI/4, 0, 1};
-    // VEC3D mod_mov = {(int) -4*cos(t), 0, 0, 1};
+    ANG3D mod_rot = {PI/2, PI/2, PI/2, t};
+    set_model_rot (app->mod_list->head->curr, mod_rot);
+    /*set_model_rot (app->mod_list->head->next->curr, mod_rot);
+    set_model_rot (app->mod_list->head->next->next->curr, mod_rot);*/
+    //printf ("Z Rot: %f\n", app->mod_list->head->curr->rot.z);
+    // VEC3D mod_mov = {0, y, -7, 1};
     // VEC3D mod_mov = {0, 0, y, 1};
-    // set_model (app->mod_list->head->curr, mod_mov);
+    //set_model_pos (app->mod_list->head->curr, mod_mov);
     // ANG3D cam_rot = {0, 0, t, 1};
     // update_camera_ang (&(app->cam), cam_rot);
-    // rotate_mod (app->mod_list->head->curr, mod_rot);
 
-    if (y == -24)
+    /*if (y >= 1)
     {
-        y = -7;
+        y = -1;
     } else {
-        y -= 1;
-    }
-
+        y += 0.01;
+    }*/
+    //printf ("T: %f\n", t);
     if (t >= 2*PI)
     {
         t = 0;
     } else {
-        t += PI/256;
+        t += PI/128;
     }
     return;
 }

@@ -12,7 +12,7 @@ typedef struct vec3d {
     float i;
     float j;
     float k;
-    int w;
+    float w;
 } VEC3D;
 
 typedef struct vec2d {
@@ -20,6 +20,8 @@ typedef struct vec2d {
     float j;
     int k;
 } VEC2D;
+
+// VEC3D ZERO_VECTOR_3D = {0, 0, 0, 0};
 
 void norm_ang_quat(ANG3D* rot);
 

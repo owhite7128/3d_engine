@@ -12,7 +12,7 @@
 #define SCREEN_HEIGHT 720 
 #define SCREEN_WIDTH 1280
 
-#define FMAX 3.4E+38
+#define FMAX 10000000000.0
 
 typedef struct buffer_2d {
     int buff_sz[2];

@@ -19,9 +19,9 @@ void norm_ang_quat(ANG3D* rot) {
 VEC3D vec_cross (VEC3D vecA, VEC3D vecB) {
     VEC3D crossProd;
     crossProd.w = 1;
-    crossProd.i = vecA.j * vecB.k - vecA.k * vecB.j;
-    crossProd.j = vecA.k * vecB.i - vecA.i * vecB.k;
-    crossProd.k = vecA.i * vecB.j - vecA.j * vecB.i;
+    crossProd.i = (vecA.j * vecB.k) - (vecA.k * vecB.j);
+    crossProd.j = (vecA.k * vecB.i) - (vecA.i * vecB.k);
+    crossProd.k = (vecA.i * vecB.j) - (vecA.j * vecB.i);
 
     return crossProd;
 }

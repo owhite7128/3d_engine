@@ -2,6 +2,7 @@
 #include "vect.h"
 #include "model.h"
 #include "camera.h"
+#include "rotate.h"
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -32,10 +33,28 @@ VEC2D point_3t2 (VEC3D vec, CAMERA camera) {
 }
 
 void model_tfrm (MODEL *init_model, CAMERA camera) {
+    //rotate_mod (init_model, init_model->rot);
+
+    norm_ang_quat (&(init_model->rot));
+    float x_bar = 0;
+    float y_bar = 0;
+    float z_bar = 0;
+
     for(int l=1; l<((int)init_model->vecs[0].i + 1);l++) {
-        VEC3D temp = {(init_model->vecs[l].i*init_model->scale) + init_model->pos.i, (init_model->vecs[l].j*init_model->scale) + init_model->pos.j, (init_model->vecs[l].k*init_model->scale) + init_model->pos.k};
+        float temp_x = init_model->vecs[l].i - x_bar;
+        float temp_y = init_model->vecs[l].j - y_bar;
+        float temp_z = init_model->vecs[l].k - z_bar;
+
+
+        init_model->rot_vecs[l].i = (temp_x*(1-2*pow(init_model->rot.y,2)-2*pow(init_model->rot.z,2))) + (temp_y*((2*init_model->rot.x*init_model->rot.y)-(2*init_model->rot.w*init_model->rot.z))) + (temp_z*((2*init_model->rot.x*init_model->rot.z)+(init_model->rot.w*init_model->rot.y))) + x_bar;
+        init_model->rot_vecs[l].j = (temp_x*((2*init_model->rot.x*init_model->rot.y)+(2*init_model->rot.w*init_model->rot.z))) + (temp_y*(1-2*pow(init_model->rot.x,2)-2*pow(init_model->rot.z,2))) + (temp_z*((2*init_model->rot.y*init_model->rot.z)-(init_model->rot.w*init_model->rot.x))) + y_bar;
+        init_model->rot_vecs[l].k = (temp_x*((2*init_model->rot.x*init_model->rot.z)-(init_model->rot.w*init_model->rot.y))) + (temp_y*((2*init_model->rot.y*init_model->rot.z)+(init_model->rot.w*init_model->rot.x))) + (temp_z*(1-2*pow(init_model->rot.x,2)-2*pow(init_model->rot.y,2))) + z_bar;
+        init_model->rot_vecs[l].w = 1;
+        
+
+        VEC3D temp = {(init_model->rot_vecs[l].i*init_model->scale) + init_model->pos.i, (init_model->rot_vecs[l].j*init_model->scale) + init_model->pos.j, (init_model->rot_vecs[l].k*init_model->scale) + init_model->pos.k};
         init_model->tvecs[l] = point_3t2(temp, camera);
-        //printf ("(%f, %f, %f)\n", init_model->pos.i, init_model->pos.j, init_model->pos.k);
-        //printf ("(%f, %f, %f) -> (%f, %f)\n", temp.i, temp.j, temp.k, init_model->tvecs[l].i, init_model->tvecs[l].j);
+        // printf ("(%f, %f, %f)\n", init_model->pos.i, init_model->pos.j, init_model->pos.k);
+        // printf ("(%f, %f, %f) -> (%f, %f)\n", temp.i, temp.j, temp.k, init_model->tvecs[l].i, init_model->tvecs[l].j);
     }
 }

@@ -43,6 +43,8 @@ MODEL* import_model (char* filename, int model_type) {
     in_model->tvecs = (VEC2D*) malloc(((int)in_model->vecs[0].i +1)*sizeof(VEC2D));
     in_model->tris = create_tris (buffer, sz);
 
+    in_model->rot_vecs = (VEC3D*) malloc(((int)in_model->vecs[0].i +1)*sizeof(VEC3D));
+
     return in_model;
     }
     else {

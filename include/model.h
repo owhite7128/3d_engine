@@ -26,11 +26,13 @@ typedef struct edge {
 
 typedef struct model {
     VEC3D* vecs;
+    VEC3D* rot_vecs;
     VEC2D* tvecs;
     EDGE* edgs;
     TRIANG* tris;
     FACE* faces;
     VEC3D pos;
+    ANG3D rot;
     int id;
     float scale;
 } MODEL;
@@ -52,7 +54,11 @@ void add_model (MODEL_LIST* mod_list, char* file_name, VEC3D in_pos, ANG3D in_ro
 
 void move_model (MODEL* mod, VEC3D pos);
 
-void set_model (MODEL* mod, VEC3D pos);
+void set_model_pos (MODEL* mod, VEC3D pos);
+
+void set_model_rot (MODEL* mod, ANG3D ang);
+
+void change_model_rot (MODEL* mod, ANG3D ang);
 
 MODEL_LIST* create_model_list ();
 
