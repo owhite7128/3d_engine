@@ -1,25 +1,35 @@
 # TODO
-- (BIG) Checking at render time which faces, if any, are occluded and don't render.
-- Change from weird python wrapper to C Based window, allows easier implementation of render func.
-- Work on render function
+- Finish rendering triangles intelligently (not just for looping through max size rect)
+- Import and display materials (start with just flat colors imported per triangle, then move onto actual image textures).
 
+# Intention
+The intention of this project is to create a fully working software renderer to load .OBJ files and do everything a simple renderer should (rotation, translation, scaling, etc). This is not a fully featured game engine, so features required for that such as level loading or physics or game logic will need to be implemented by the end user.
 
-## IDEA FOR RENDER ORDER
-For Every Model have the x_bar y_bar and z_bar be known, then get the distance from the camera, if it is in the viewport, than loop through every face on the model and every face of models equal to or closer in distance, moving inwards out then finally whatever the background fill in the rest with background.
+# Features
+- Full Z-Culling based on distance from the camera for maximum efficiency.
+- Simple to use toolchain supporting init and per render functions to perform any computation every frame render.
+- Rotation, scaling, and translation of all imported models. 
+- Model importing based upon modern .OBJ file standard.
+- Rotation and translation of camera to change the viewed perspective.
 
-Or paint background and floor first and just assume little inefficiency since background and floor are most likely just images.
-Can get more complex if floor has depth and is actually a rendered object, if so just treat it similar to a model.
+## To Use
+On inclusion of the library and all required dependancies, a state struct will be initialized and a SDL window of size 1280x720 will be attached.
 
-Since assuming the camera is the origin always, it gets easier to check if vector intersects plane, just check all four points of plane, since it is possible that the center of a plane is occluded but the rest of the plane is not.
+In order to use the renderer, first attach init and render functions as such
+```
+render_init (void (*init)(), void (*render)());
+```
 
-Finally once satisfied render outwards in, so that if there is any overlap with semi occluded planes, you don't run into the issue of random texture overlap or that something is missing.
+Once the necessary functions have been attached tell the renderer which mode to use. Currently only 3D mode is supported.
+```
+render (RENDER_MODE_3D);
+```
 
-### For Intersection
-- Need to know all plane normals, in order to get intersection
-- Find IP using the ideas from https://courses.cs.washington.edu/courses/csep557/10au/lectures/triangle_intersection.pdf
-- Then check if within smaller plane portion
-- If it is disable that specific plane, and move on. 
-- Only check against planes that will be rendered.
-- If working inwards out, can assume that all of the planes that are enabled have the potential to be rendered.
-- Versus outwards in, you can run into something where a plane further out gets rendered even tho something closer is covering it.
-- MAKE SURE TO CHECK 4 CORNERS, IF EVEN 1 IS UNOCCLUDED THEN RENDER IT
+Inside the init function, import any models that will need to be utilized right away and give them an initial state, rotation is thought of as a quaternion.
+```
+VEC3D init_pos = {x, y, z, 1};
+ANG3D init_rot = {alpha, beta, gamma, angle};
+add_model (app->mod_list, "objsrc", init_pos, init_rot, scale);
+```
+
+Then anything that is written inside the attached render function gets executed every frame. Models can be manipulated, added, or removed by using the mod_list linked list.
