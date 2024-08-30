@@ -7,6 +7,7 @@ void norm_ang_quat(ANG3D* rot) {
     rot->x /= length;
     rot->y /= length;
     rot->z /= length;
+    
 
     rot->x *= sin(rot->w / 2);
     rot->y *= sin(rot->w / 2);
@@ -60,7 +61,7 @@ float vec3_dot (VEC3D vecA, VEC3D vecB) {
 }
 
 float vec2_dot (VEC2D vecA, VEC2D vecB) {
-    float dot = vecA.i * vecB.i + vecA.j + vecB.j;
+    float dot = vecA.i * vecB.i + vecA.j*vecB.j;
 
     return dot;
 }

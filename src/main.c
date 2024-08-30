@@ -20,8 +20,8 @@ void on_init_rend (WINDOW_APP* app) {
     ANG3D mod_ang = {PI/2, 0, 0, 0};
     add_model (app->mod_list, "./spheretris.obj", mod_vec, mod_ang, 1);*/
 
-    VEC3D mod_vec_2 = {0, 0, -20, 1};
-    ANG3D mod_ang_2 = {0, PI, 0, 0.1};
+    VEC3D mod_vec_2 = {0, 0, -7, 1};
+    ANG3D mod_ang_2 = {0, PI, 0, 0};
     add_model (app->mod_list, "./monkey.obj", mod_vec_2, mod_ang_2, 1);
 
     /*VEC3D mod_vec_3 = {-2, 0, -7, 1};
@@ -37,18 +37,16 @@ void on_init_rend (WINDOW_APP* app) {
 
 // ANG3D mod_rot = {0, PI/2, 0, 0.01};
 void call_rend (WINDOW_APP* app) {
-    ANG3D mod_rot = {0, PI, 0, t};
+    ANG3D mod_rot = {0, 0, PI, t};
     VEC3D mod_mov = {0, 0, -7-5-5*sin(t), 1};
-    set_model_rot (app->mod_list->head->curr, mod_rot);
-    set_model_pos (app->mod_list->head->curr, mod_mov);
-    /*set_model_rot (app->mod_list->head->next->curr, mod_rot);
-    set_model_rot (app->mod_list->head->next->next->curr, mod_rot);*/
+    //set_model_rot (app->mod_list->head->curr, mod_rot);
+    //set_model_pos (app->mod_list->head->curr, mod_mov);
     //printf ("Z Rot: %f\n", app->mod_list->head->curr->rot.z);
     // VEC3D mod_mov = {0, y, -7, 1};
     // VEC3D mod_mov = {0, 0, y, 1};
     //set_model_pos (app->mod_list->head->curr, mod_mov);
-    // ANG3D cam_rot = {0, 0, t, 1};
-    // update_camera_ang (&(app->cam), cam_rot);
+    ANG3D cam_rot = {0, 0, t, 1};
+    update_camera_ang (&(app->cam), cam_rot);
 
     //printf ("T: %f\n", t);
     if (t >= 2*PI)

@@ -255,7 +255,6 @@ void render_tri (uint32_t *cbuff, float *zbuff, MODEL* mod, TRIANG tri) {
     if (vec3_dot(NORM, C) < 0)
     {
         NORM = vec3_sub(zero_vec, NORM);
-
     }
 
     NORM.w = NORM.i*mod->rot_vecs[p1].i + NORM.j*mod->rot_vecs[p1].j + NORM.k*mod->rot_vecs[p1].k;
